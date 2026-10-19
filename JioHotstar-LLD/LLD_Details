@@ -1,0 +1,116 @@
+Create workflow engine, where we want to support 3 kinds of task - sleep, console where you can just log something and third could be to make an http call and print the http status of the response. 
+As a user we can trigger any task in the workflow.
+Workflow is a basically adding one or multiple tasks and then triggering them any number of times. 
+Assume will trigger them via API. We can discuss about crons at end (bonus)
+
+
+FR
+Create a workflow with uniqueId
+Add multiple tasks to workflow
+Support sleep, console and http tasks
+Execute tasks sequentially in their order
+Trigger the workflow multiple times
+Track workflow execution status
+Handle task failure without crashing workflow - As of now if task fails fail the workflow itself
+Support concurrent workflow execution
+Same workflow can be retriggered during inprocess status. New instance to be created for the new workflow that is triggered
+
+Assumption
+If task fails then fail entire workflow
+Each trigger will have new executionId
+
+NFRs
+Extensibility - Strategy pattern for tasks
+Thread safety for in-memory-repo
+ThreadPoolExecutor for independent workflow runs
+
+
+APIs
+1. POST /workflows
+	{
+		"name": "sample-workflow",
+		"tasks": [
+			{
+				"type": "CONSOLE",
+				"config":
+					{
+						"message": "Workflow started"
+					}
+			},
+			{
+				"type": "HTTP",
+				"config":
+					{
+						"url": ""
+						"method": "",
+						"timeout": ""
+					}
+			}
+		]
+	}
+
+	{
+		"workflow_id"
+	}
+2. POST /workflows/{workflow_id}/execute
+	{
+		"executionId",
+		"workflowId",
+		"status"
+	}
+
+3. GET /executions/{executionId}
+	{
+		"executionId",
+		"status",
+		"tasks":[
+			{
+				"taskId":,
+				"taskName"
+				"startedAt",
+				completedAt,
+				"metadata",
+				status
+			}
+		]
+	}
+
+
+Entities
+
+Workflow - 
+TaskDefination
+WorkflowExecution
+TaskExecutions 
+TaskType - SLEEP, CONSOLE, HTTP
+ExecutionStatus - Enum - PENDING, RUNNING, COMPLETED, FAILED
+
+
+
+
+
+Classes and Interface
+TaskExecutor - execute(config)
+	SleepTaskExecutor
+	ConsoleTaskExecutor
+	HTTPTaskExecutor
+TaskExecutorFactory
+WorkflowEngine
+WorkflowService
+
+WorkflowRepository
+	InMemoryWorkflowRepository
+
+ExecutorRepository
+	InMemoryExecutorRepository
+
+
+
+
+pausedAt - 1234
+sleep
+resumeTime - 1240
+
+startTime - 1241
+http
+completionTime
